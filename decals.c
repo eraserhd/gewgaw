@@ -32,20 +32,24 @@ id AppDelegate_init(AppDelegate *self, SEL _cmd)
 
 void AppDelegate_applicationDidFinishLaunching(AppDelegate *self, SEL _cmd, id notification)
 {
-    printf("hello, world!\n");
-
-    CGRect rect = {
-        .origin = {100,100},
-        .size = {200,200}
-    };
-    id overlay = objc_msgSend(objc_msgSend((id) objc_getClass("NSWindow"), sel_getUid("alloc")),
-                             sel_getUid("initWithContentRect:styleMask:backing:defer:"),
-                             rect,
-                             (1 << 0) | (1 << 1), /* titled, closable */
-                             2, /* buffered */
-                             NO);
-    objc_msgSend(self->overlays, sel_getUid("addObject:"), overlay);
-    objc_msgSend(overlay, sel_getUid("makeKeyAndOrderFront:"), Nil);
+    id screens = objc_msgSend((id) objc_getClass("NSScreen"), sel_getUid("screens"));
+    const int count = (int)objc_msgSend(screens, sel_getUid("count"));
+    for (int i = 0; i < count; i++)
+    {
+        id screen = objc_msgSend(screens, sel_getUid("objectAtIndex:"), i);
+        CGRect rect = {
+            .origin = {100,100},
+            .size = {200,200}
+        };
+        id overlay = objc_msgSend(objc_msgSend((id) objc_getClass("NSWindow"), sel_getUid("alloc")),
+                                 sel_getUid("initWithContentRect:styleMask:backing:defer:"),
+                                 rect,
+                                 (1 << 0) | (1 << 1), /* titled, closable */
+                                 2, /* buffered */
+                                 NO);
+        objc_msgSend(self->overlays, sel_getUid("addObject:"), overlay);
+        objc_msgSend(overlay, sel_getUid("makeKeyAndOrderFront:"), Nil);
+    }
 }
 
 void AppDelegate_applicationWillTerminate(AppDelegate *self, SEL _cmd, id notification)

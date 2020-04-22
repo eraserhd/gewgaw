@@ -42,11 +42,12 @@ void AppDelegate_applicationDidFinishLaunching(AppDelegate *self, SEL _cmd, id n
             .size = {200,200}
         };
         id overlay = objc_msgSend(objc_msgSend((id) objc_getClass("NSWindow"), sel_getUid("alloc")),
-                                 sel_getUid("initWithContentRect:styleMask:backing:defer:"),
+                                 sel_getUid("initWithContentRect:styleMask:backing:defer:screen:"),
                                  rect,
                                  (1 << 0) | (1 << 1), /* titled, closable */
                                  2, /* buffered */
-                                 NO);
+                                 NO,
+                                 screen);
         objc_msgSend(self->overlays, sel_getUid("addObject:"), overlay);
         objc_msgSend(overlay, sel_getUid("makeKeyAndOrderFront:"), Nil);
     }

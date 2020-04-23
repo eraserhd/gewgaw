@@ -71,7 +71,7 @@ void AppDelegate_applicationWillTerminate(AppDelegate *self, SEL _cmd, id notifi
 {
 }
 
-void init_AppDelegateClass()
+void register_AppDelegateClass()
 {
     AppDelegateClass = objc_allocateClassPair(objc_getClass("NSObject"), "AppDelegate", 0);
     class_addIvar(AppDelegateClass, "overlays", sizeof(id), 0, "@");
@@ -87,7 +87,7 @@ void init_AppDelegateClass()
 int main(int argc, char *argv[])
 {
     register_OverlayClass();
-    init_AppDelegateClass();
+    register_AppDelegateClass();
 
     id application = objc_msgSend((id) objc_getClass("NSApplication"), sel_getUid("sharedApplication"));
     id delegate = objc_msgSend(objc_msgSend((id) AppDelegateClass, sel_getUid("alloc")), sel_getUid("init"));

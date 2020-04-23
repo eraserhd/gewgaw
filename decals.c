@@ -87,6 +87,11 @@ void AppDelegate_applicationDidFinishLaunching(AppDelegate *self, SEL _cmd, id n
     }
 }
 
+BOOL AppDelegate_applicationShouldTerminateAfterLastWindowClosed(AppDelegate *self, SEL _cmd, id application)
+{
+    return YES;
+}
+
 void AppDelegate_applicationWillTerminate(AppDelegate *self, SEL _cmd, id notification)
 {
 }
@@ -98,6 +103,7 @@ void register_AppDelegateClass()
     class_addProtocol(AppDelegateClass, objc_getProtocol("NSApplicationDelegate"));
     class_addMethod(AppDelegateClass, sel_getUid("init"), (IMP) AppDelegate_init, "@@:");
     class_addMethod(AppDelegateClass, sel_getUid("applicationDidFinishLaunching:"), (IMP) AppDelegate_applicationDidFinishLaunching, "v@:@");
+    class_addMethod(AppDelegateClass, sel_getUid("applicationShouldTerminateAfterLastWindowClosed:"), (IMP) AppDelegate_applicationShouldTerminateAfterLastWindowClosed, "v@:@");
     class_addMethod(AppDelegateClass, sel_getUid("applicationWillTerminate:"), (IMP) AppDelegate_applicationWillTerminate, "v@:@");
     objc_registerClassPair(AppDelegateClass);
 }

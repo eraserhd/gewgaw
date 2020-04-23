@@ -111,11 +111,32 @@ void Overlay_keyDown(Overlay *self, SEL _cmd, id event)
     objc_msgSend(application, sel_getUid("terminate:"), (id)self);
 }
 
+void Overlay_addPane_label(Overlay *self, SEL _cmd, CGRect frame, id label)
+{
+    id pane = objc_msgSend(objc_msgSend((id) objc_getClass("NSTextField"), sel_getUid("alloc")), sel_getUid("init"));
+
+    objc_msgSend(pane, sel_getUid("setFrame:"), frame);
+    objc_msgSend(pane, sel_getUid("setStringValue:"), label);
+    objc_msgSend(pane, sel_getUid("setEditable:"), NO);
+    objc_msgSend(pane, sel_getUid("setBezeled:"), NO);
+    objc_msgSend(pane, sel_getUid("setBackgroundColor:"),
+                 objc_msgSend(objc_msgSend((id) objc_getClass("NSColor"), sel_getUid("cyanColor")),
+                              sel_getUid("colorWithAlphaComponent:"),
+                              (CGFloat)0.15));
+    objc_msgSend(pane, sel_getUid("setFont:"), objc_msgSend((id) objc_getClass("NSFont"), sel_getUid("systemFontOfSize:"), (CGFloat) 25));
+    objc_msgSend(pane, sel_getUid("setBordered:"), YES);
+    objc_msgSend(pane, sel_getUid("setTextColor:"), objc_msgSend((id) objc_getClass("NSColor"), sel_getUid("whiteColor")));
+
+    id contentView = objc_msgSend((id)self, sel_getUid("contentView"));
+    objc_msgSend(contentView, sel_getUid("addSubview:"), pane);
+}
+
 void register_OverlayClass()
 {
     OverlayClass = objc_allocateClassPair(objc_getClass("NSWindow"), "Overlay", 0);
     class_addMethod(OverlayClass, sel_getUid("initWithScreen:"), (IMP) Overlay_initWithScreen, "@@:@");
     class_addMethod(OverlayClass, sel_getUid("keyDown:"), (IMP) Overlay_keyDown, "v@:@");
+    class_addMethod(OverlayClass, sel_getUid("addPane:label:"), (IMP) Overlay_addPane_label, "v@:{CGRect={CGPoint=dd}{CGSize=dd}}@");;
     objc_registerClassPair(OverlayClass);
 }
 
@@ -155,6 +176,12 @@ void AppDelegate_applicationDidFinishLaunching(AppDelegate *self, SEL _cmd, id n
                                   sel_getUid("initWithScreen:"),
                                   screen);
         objc_msgSend(self->overlays, sel_getUid("addObject:"), overlay);
+
+
+        CGRect pane = {{20,20},{300,300}};
+        id label = objc_msgSend((id) objc_getClass("NSString"), sel_getUid("stringWithUTF8String:"), "Hello, world!");
+        objc_msgSend(overlay, sel_getUid("addPane:label:"), pane, label);
+
         objc_msgSend(overlay, sel_getUid("makeKeyAndOrderFront:"), Nil);
     }
 }
@@ -181,20 +208,6 @@ void register_AppDelegateClass()
 
 /* -- main() -------------------------------------------------------------- */
 
-void parse_options(int argc, char *argv[])
-{
-    int opt;
-
-    while ((opt = getopt(argc, argv, "")) != -1)
-    {
-        switch (opt)
-        {
-        case '?':
-            exit(1);
-        }
-    }
-}
-
 int main(int argc, char *argv[])
 {
     register_OverlayClass();
@@ -207,8 +220,6 @@ int main(int argc, char *argv[])
 
     id delegate = objc_msgSend(objc_msgSend((id) AppDelegateClass, sel_getUid("alloc")), sel_getUid("init"));
     objc_msgSend(application, sel_getUid("setDelegate:"), delegate);
-
-    parse_options(argc, argv);
 
     objc_msgSend(application, sel_getUid("run"));
     exit(0);

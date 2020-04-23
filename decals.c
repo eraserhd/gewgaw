@@ -3,6 +3,7 @@
 #include <objc/objc.h>
 #include <objc/message.h>
 #include <objc/runtime.h>
+#include <Carbon/Carbon.h>
 #include <CoreFoundation/CoreFoundation.h>
 #include <CoreGraphics/CoreGraphics.h>
 
@@ -41,10 +42,70 @@ id Overlay_initWithScreen(Overlay *self, SEL _cmd, id screen)
     return (id)self;
 }
 
+const char *find_key_name(CGKeyCode code)
+{
+    static struct key_name_tag {
+        CGKeyCode code;
+        const char *name;
+    } key_names[] = {
+        { kVK_Return,                   "return"            },
+        { kVK_Tab,                      "tab"               },
+        { kVK_Space,                    "space"             },
+        { kVK_Delete,                   "backspace"         },
+        { kVK_Escape,                   "escape"            },
+        { kVK_ForwardDelete,            "delete"            },
+        { kVK_Home,                     "home"              },
+        { kVK_End,                      "end"               },
+        { kVK_PageUp,                   "pageup"            },
+        { kVK_PageDown,                 "pagedown"          },
+        { kVK_Help,                     "insert"            },
+        { kVK_LeftArrow,                "left"              },
+        { kVK_RightArrow,               "right"             },
+        { kVK_UpArrow,                  "up"                },
+        { kVK_DownArrow,                "down"              },
+        { kVK_F1,                       "f1"                },
+        { kVK_F2,                       "f2"                },
+        { kVK_F3,                       "f3"                },
+        { kVK_F4,                       "f4"                },
+        { kVK_F5,                       "f5"                },
+        { kVK_F6,                       "f6"                },
+        { kVK_F7,                       "f7"                },
+        { kVK_F8,                       "f8"                },
+        { kVK_F9,                       "f9"                },
+        { kVK_F10,                      "f10"               },
+        { kVK_F11,                      "f11"               },
+        { kVK_F12,                      "f12"               },
+        { kVK_F13,                      "f13"               },
+        { kVK_F14,                      "f14"               },
+        { kVK_F15,                      "f15"               },
+        { kVK_F16,                      "f16"               },
+        { kVK_F17,                      "f17"               },
+        { kVK_F18,                      "f18"               },
+        { kVK_F19,                      "f19"               },
+        { kVK_F20,                      "f20"               },
+    };
+    for (int i = 0; i < sizeof(key_names)/sizeof(key_names[0]); ++i)
+    {
+        if (key_names[i].code == code)
+            return key_names[i].name;
+    }
+    return NULL;
+}
+
 void Overlay_keyDown(Overlay *self, SEL _cmd, id event)
 {
-    const char *s = objc_msgSend(objc_msgSend(event, sel_getUid("characters")), sel_getUid("UTF8String"));
-    printf("%s\n", s);
+    CGKeyCode keyCode = (CGKeyCode) objc_msgSend(event, sel_getUid("keyCode"));
+    const char *name = find_key_name(keyCode);
+    if (name)
+        printf("%s\n", name);
+    else
+    {
+        const char *chars = (const char*)objc_msgSend(objc_msgSend(event, sel_getUid("characters")), sel_getUid("UTF8String"));
+        if (!strcmp(chars, ""))
+            printf("0x%02X\n", keyCode);
+        else
+            printf("%s\n", chars);
+    }
 
     id application = objc_msgSend((id) objc_getClass("NSApplication"), sel_getUid("sharedApplication"));
     objc_msgSend(application, sel_getUid("terminate:"), (id)self);

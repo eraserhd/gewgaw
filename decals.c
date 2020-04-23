@@ -5,6 +5,22 @@
 #include <CoreFoundation/CoreFoundation.h>
 #include <CoreGraphics/CoreGraphics.h>
 
+/* -- Overlay ------------------------------------------------------------- */
+
+Class OverlayClass;
+
+typedef struct Overlay_tag
+{
+    Class isa;
+}
+Overlay;
+
+void register_OverlayClass()
+{
+    OverlayClass = objc_allocateClassPair(objc_getClass("NSWindow"), "Overlay", 0);
+    objc_registerClassPair(OverlayClass);
+}
+
 /* -- AppDelegate --------------------------------------------------------- */
 
 Class AppDelegateClass;
@@ -37,10 +53,8 @@ void AppDelegate_applicationDidFinishLaunching(AppDelegate *self, SEL _cmd, id n
     for (int i = 0; i < count; i++)
     {
         id screen = objc_msgSend(screens, sel_getUid("objectAtIndex:"), i);
-        CGRect rect = {
-            .origin = {100,100},
-            .size = {200,200}
-        };
+        CGRect rect = {};
+        objc_msgSend_stret(&rect, screen, sel_getUid("frame"));
         id overlay = objc_msgSend(objc_msgSend((id) objc_getClass("NSWindow"), sel_getUid("alloc")),
                                  sel_getUid("initWithContentRect:styleMask:backing:defer:screen:"),
                                  rect,
@@ -72,6 +86,7 @@ void init_AppDelegateClass()
 
 int main(int argc, char *argv[])
 {
+    register_OverlayClass();
     init_AppDelegateClass();
 
     id application = objc_msgSend((id) objc_getClass("NSApplication"), sel_getUid("sharedApplication"));

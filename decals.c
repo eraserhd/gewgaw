@@ -21,7 +21,8 @@ id Overlay_initWithScreen(Overlay *self, SEL _cmd, id screen)
 {
     CGRect rect = {};
     objc_msgSend_stret(&rect, screen, sel_getUid("frame"));
-
+    rect.origin.x = 0;
+    rect.origin.y = 0;
     struct objc_super super =
     {
         (id)self,

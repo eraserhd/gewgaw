@@ -40,10 +40,17 @@ id Overlay_initWithScreen(Overlay *self, SEL _cmd, id screen)
     return (id)self;
 }
 
+void Overlay_keyDown(Overlay *self, SEL _cmd, id event)
+{
+    id application = objc_msgSend((id) objc_getClass("NSApplication"), sel_getUid("sharedApplication"));
+    objc_msgSend(application, sel_getUid("terminate:"), (id)self);
+}
+
 void register_OverlayClass()
 {
     OverlayClass = objc_allocateClassPair(objc_getClass("NSWindow"), "Overlay", 0);
     class_addMethod(OverlayClass, sel_getUid("initWithScreen:"), (IMP) Overlay_initWithScreen, "@@:@");
+    class_addMethod(OverlayClass, sel_getUid("keyDown:"), (IMP) Overlay_keyDown, "v@:@");
     objc_registerClassPair(OverlayClass);
 }
 
@@ -100,7 +107,6 @@ void register_AppDelegateClass()
 {
     AppDelegateClass = objc_allocateClassPair(objc_getClass("NSObject"), "AppDelegate", 0);
     class_addIvar(AppDelegateClass, "overlays", sizeof(id), 0, "@");
-    class_addProtocol(AppDelegateClass, objc_getProtocol("NSApplicationDelegate"));
     class_addMethod(AppDelegateClass, sel_getUid("init"), (IMP) AppDelegate_init, "@@:");
     class_addMethod(AppDelegateClass, sel_getUid("applicationDidFinishLaunching:"), (IMP) AppDelegate_applicationDidFinishLaunching, "v@:@");
     class_addMethod(AppDelegateClass, sel_getUid("applicationShouldTerminateAfterLastWindowClosed:"), (IMP) AppDelegate_applicationShouldTerminateAfterLastWindowClosed, "v@:@");
@@ -116,8 +122,13 @@ int main(int argc, char *argv[])
     register_AppDelegateClass();
 
     id application = objc_msgSend((id) objc_getClass("NSApplication"), sel_getUid("sharedApplication"));
+
+    /* Regular activation policy */
+    objc_msgSend(application, sel_getUid("setActivationPolicy:"), 0);
+
     id delegate = objc_msgSend(objc_msgSend((id) AppDelegateClass, sel_getUid("alloc")), sel_getUid("init"));
     objc_msgSend(application, sel_getUid("setDelegate:"), delegate);
+
 
     objc_msgSend(application, sel_getUid("run"));
     exit(0);

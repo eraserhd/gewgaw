@@ -15,9 +15,32 @@ typedef struct Overlay_tag
 }
 Overlay;
 
+id Overlay_initWithScreen(Overlay *self, SEL _cmd, id screen)
+{
+    CGRect rect = {};
+    objc_msgSend_stret(&rect, screen, sel_getUid("frame"));
+
+    struct objc_super super =
+    {
+        (id)self,
+        objc_getClass("NSWindow")
+    };
+    if ((self = (Overlay *)objc_msgSendSuper(&super,
+                                             sel_getUid("initWithContentRect:styleMask:backing:defer:screen:"),
+                                             rect,
+                                             (1 << 0) | (1 << 1), /* titled, closable */
+                                             2, /* buffered */
+                                             NO,
+                                             screen)))
+    {
+    }
+    return (id)self;
+}
+
 void register_OverlayClass()
 {
     OverlayClass = objc_allocateClassPair(objc_getClass("NSWindow"), "Overlay", 0);
+    class_addMethod(OverlayClass, sel_getUid("initWithScreen:"), (IMP) Overlay_initWithScreen, "@@:@");
     objc_registerClassPair(OverlayClass);
 }
 
@@ -53,15 +76,9 @@ void AppDelegate_applicationDidFinishLaunching(AppDelegate *self, SEL _cmd, id n
     for (int i = 0; i < count; i++)
     {
         id screen = objc_msgSend(screens, sel_getUid("objectAtIndex:"), i);
-        CGRect rect = {};
-        objc_msgSend_stret(&rect, screen, sel_getUid("frame"));
-        id overlay = objc_msgSend(objc_msgSend((id) objc_getClass("NSWindow"), sel_getUid("alloc")),
-                                 sel_getUid("initWithContentRect:styleMask:backing:defer:screen:"),
-                                 rect,
-                                 (1 << 0) | (1 << 1), /* titled, closable */
-                                 2, /* buffered */
-                                 NO,
-                                 screen);
+        id overlay = objc_msgSend(objc_msgSend((id) objc_getClass("Overlay"), sel_getUid("alloc")),
+                                  sel_getUid("initWithScreen:"),
+                                  screen);
         objc_msgSend(self->overlays, sel_getUid("addObject:"), overlay);
         objc_msgSend(overlay, sel_getUid("makeKeyAndOrderFront:"), Nil);
     }

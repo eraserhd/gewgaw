@@ -30,7 +30,7 @@ id Overlay_initWithScreen(Overlay *self, SEL _cmd, id screen)
     if ((self = (Overlay *)objc_msgSendSuper(&super,
                                              sel_getUid("initWithContentRect:styleMask:backing:defer:screen:"),
                                              rect,
-                                             (1 << 0) | (1 << 1), /* titled, closable */
+                                             0, /* borderless */
                                              2, /* buffered */
                                              NO,
                                              screen)))
@@ -131,12 +131,24 @@ void Overlay_addPane_label(Overlay *self, SEL _cmd, CGRect frame, id label)
     objc_msgSend(contentView, sel_getUid("addSubview:"), pane);
 }
 
+BOOL Overlay_canBecomeKeyWindow(Overlay *self, SEL _cmd)
+{
+    return YES;
+}
+
+BOOL Overlay_canBecomeMainWindow(Overlay *self, SEL _cmd)
+{
+    return YES;
+}
+
 void register_OverlayClass()
 {
     OverlayClass = objc_allocateClassPair(objc_getClass("NSWindow"), "Overlay", 0);
     class_addMethod(OverlayClass, sel_getUid("initWithScreen:"), (IMP) Overlay_initWithScreen, "@@:@");
     class_addMethod(OverlayClass, sel_getUid("keyDown:"), (IMP) Overlay_keyDown, "v@:@");
     class_addMethod(OverlayClass, sel_getUid("addPane:label:"), (IMP) Overlay_addPane_label, "v@:{CGRect={CGPoint=dd}{CGSize=dd}}@");;
+    class_addMethod(OverlayClass, sel_getUid("canBecomeKeyWindow"), (IMP) Overlay_canBecomeKeyWindow, "c@:");
+    class_addMethod(OverlayClass, sel_getUid("canBecomeMainWindow"), (IMP) Overlay_canBecomeMainWindow, "c@:");
     objc_registerClassPair(OverlayClass);
 }
 
@@ -176,7 +188,6 @@ void AppDelegate_applicationDidFinishLaunching(AppDelegate *self, SEL _cmd, id n
                                   sel_getUid("initWithScreen:"),
                                   screen);
         objc_msgSend(self->overlays, sel_getUid("addObject:"), overlay);
-
 
         CGRect pane = {{20,20},{300,300}};
         id label = objc_msgSend((id) objc_getClass("NSString"), sel_getUid("stringWithUTF8String:"), "Hello, world!");

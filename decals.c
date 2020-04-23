@@ -33,6 +33,9 @@ id Overlay_initWithScreen(Overlay *self, SEL _cmd, id screen)
                                              NO,
                                              screen)))
     {
+        id clear = objc_msgSend((id) objc_getClass("NSColor"), sel_getUid("clearColor"));
+        objc_msgSend((id) self, sel_getUid("setBackgroundColor:"), clear);
+        objc_msgSend((id) self, sel_getUid("setOpaque:"), NO);
     }
     return (id)self;
 }

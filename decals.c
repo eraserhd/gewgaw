@@ -42,6 +42,9 @@ id Overlay_initWithScreen(Overlay *self, SEL _cmd, id screen)
 
 void Overlay_keyDown(Overlay *self, SEL _cmd, id event)
 {
+    const char *s = objc_msgSend(objc_msgSend(event, sel_getUid("characters")), sel_getUid("UTF8String"));
+    printf("%s\n", s);
+
     id application = objc_msgSend((id) objc_getClass("NSApplication"), sel_getUid("sharedApplication"));
     objc_msgSend(application, sel_getUid("terminate:"), (id)self);
 }

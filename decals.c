@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <unistd.h>
 #include <objc/objc.h>
 #include <objc/message.h>
 #include <objc/runtime.h>
@@ -119,6 +120,20 @@ void register_AppDelegateClass()
 
 /* -- main() -------------------------------------------------------------- */
 
+void parse_options(int argc, char *argv[])
+{
+    int opt;
+
+    while ((opt = getopt(argc, argv, "")) != -1)
+    {
+        switch (opt)
+        {
+        case '?':
+            exit(1);
+        }
+    }
+}
+
 int main(int argc, char *argv[])
 {
     register_OverlayClass();
@@ -132,6 +147,7 @@ int main(int argc, char *argv[])
     id delegate = objc_msgSend(objc_msgSend((id) AppDelegateClass, sel_getUid("alloc")), sel_getUid("init"));
     objc_msgSend(application, sel_getUid("setDelegate:"), delegate);
 
+    parse_options(argc, argv);
 
     objc_msgSend(application, sel_getUid("run"));
     exit(0);

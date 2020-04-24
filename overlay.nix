@@ -1,3 +1,3 @@
 self: super: {
-  decals = super.callPackage ./derivation.nix {};
+  gewgaw = super.callPackage ./derivation.nix {};
 }

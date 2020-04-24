@@ -6,10 +6,10 @@ let
       (import ./overlay.nix)
     ];
   };
-  decals = pkgs.callPackage ./derivation.nix {};
+  gewgaw = pkgs.callPackage ./derivation.nix {};
 in {
-  test = pkgs.runCommandNoCC "decals-test" {} ''
+  test = pkgs.runCommandNoCC "gewgaw-test" {} ''
     mkdir -p $out
-    : ${pkgs.decals}
+    : ${pkgs.gewgaw}
   '';
 }

@@ -2,10 +2,10 @@
 prefix = /usr/local
 
 .PHONY: install
-install: decals
+install: gewgaw
 	mkdir -p $(prefix)/bin
-	cp decals $(prefix)/bin
+	cp gewgaw $(prefix)/bin
 
-decals: decals.c
-	$(CC) -framework Cocoa -o decals decals.c
+gewgaw: gewgaw.c
+	$(CC) -framework Cocoa -o gewgaw gewgaw.c
 

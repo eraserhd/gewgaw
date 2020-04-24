@@ -26,7 +26,7 @@ void parse_arg(char *arg)
     char label[512];
     if (pane_count >= MAX_PANES)
     {
-        fprintf(stderr, "decals: too many panes specified.\n");
+        fprintf(stderr, "gewgaw: too many panes specified.\n");
         exit(1);
     }
     if (sscanf(arg, "%d%*c%lf%*c%lf%*c%lf%*c%lf%*c%[^\n]",
@@ -37,7 +37,7 @@ void parse_arg(char *arg)
                &panes[pane_count].area.size.height,
                label) < 6)
     {
-        fprintf(stderr, "decals: unable to parse `%s'.\n", arg);
+        fprintf(stderr, "gewgaw: unable to parse `%s'.\n", arg);
         exit(1);
     }
     panes[pane_count].label = objc_msgSend((id) objc_getClass("NSString"), sel_getUid("stringWithUTF8String:"), label);

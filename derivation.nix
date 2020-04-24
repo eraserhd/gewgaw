@@ -1,7 +1,7 @@
 { stdenv, darwin, fetchFromGitHub, ... }:
 
 stdenv.mkDerivation rec {
-  pname = "decals";
+  pname = "gewgaw";
   version = "0.1.0";
 
   src = ./.;
@@ -16,7 +16,7 @@ stdenv.mkDerivation rec {
 
   meta = with stdenv.lib; {
     description = "TODO: fill me in";
-    homepage = https://github.com/eraserhd/decals;
+    homepage = https://github.com/eraserhd/gewgaw;
     license = licenses.publicDomain;
     platforms = platforms.all;
     maintainers = [ maintainers.eraserhd ];

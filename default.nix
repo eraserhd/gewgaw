@@ -5,4 +5,4 @@ let
     overlays = [ (import ./overlay.nix) ];
   };
 
-in pkgs.decals
+in pkgs.gewgaw

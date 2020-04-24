@@ -7,6 +7,59 @@
 #include <CoreFoundation/CoreFoundation.h>
 #include <CoreGraphics/CoreGraphics.h>
 
+/* -- options ------------------------------------------------------------- */
+
+typedef struct Pane_tag
+{
+    int screen;
+    CGRect area;
+    id label;
+}
+Pane;
+
+#define MAX_PANES 256
+size_t pane_count = 0;
+Pane panes[MAX_PANES];
+
+void parse_arg(char *arg)
+{
+    char label[512];
+    if (pane_count >= MAX_PANES)
+    {
+        fprintf(stderr, "decals: too many panes specified.\n");
+        exit(1);
+    }
+    if (sscanf(arg, "%d%*c%lf%*c%lf%*c%lf%*c%lf%*c%[^\n]",
+               &panes[pane_count].screen,
+               &panes[pane_count].area.origin.x,
+               &panes[pane_count].area.origin.y,
+               &panes[pane_count].area.size.width,
+               &panes[pane_count].area.size.height,
+               label) < 6)
+    {
+        fprintf(stderr, "decals: unable to parse `%s'.\n", arg);
+        exit(1);
+    }
+    panes[pane_count].label = objc_msgSend((id) objc_getClass("NSString"), sel_getUid("stringWithUTF8String:"), label);
+    ++pane_count;
+}
+
+void parse_args(int argc, char *argv[])
+{
+    int opt;
+    while ((opt = getopt(argc, argv, "")) != -1)
+    {
+        switch (opt)
+        {
+        case '?':
+            exit(1);
+        }
+    }
+
+    for ( ; optind < argc; ++optind)
+        parse_arg(argv[optind]);
+}
+
 /* -- Overlay ------------------------------------------------------------- */
 
 Class OverlayClass;
@@ -190,9 +243,9 @@ void AppDelegate_applicationDidFinishLaunching(AppDelegate *self, SEL _cmd, id n
                                   screen);
         objc_msgSend(self->overlays, sel_getUid("addObject:"), overlay);
 
-        CGRect pane = {{20,20},{300,300}};
-        id label = objc_msgSend((id) objc_getClass("NSString"), sel_getUid("stringWithUTF8String:"), "Hello, world!");
-        objc_msgSend(overlay, sel_getUid("addPane:label:"), pane, label);
+        for (int j = 0; j < pane_count; j++)
+            if (panes[j].screen == 1+i)
+                objc_msgSend(overlay, sel_getUid("addPane:label:"), panes[j].area, panes[j].label);
 
         objc_msgSend(overlay, sel_getUid("makeKeyAndOrderFront:"), Nil);
     }
@@ -232,6 +285,8 @@ int main(int argc, char *argv[])
 
     id delegate = objc_msgSend(objc_msgSend((id) AppDelegateClass, sel_getUid("alloc")), sel_getUid("init"));
     objc_msgSend(application, sel_getUid("setDelegate:"), delegate);
+
+    parse_args(argc, argv);
 
     objc_msgSend(application, sel_getUid("run"));
     exit(0);

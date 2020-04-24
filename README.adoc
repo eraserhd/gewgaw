@@ -1,3 +1,5 @@
 gewgaw
 ======
 
+A small scriptable Mac OS utility to select screen regions using the
+keyboard.

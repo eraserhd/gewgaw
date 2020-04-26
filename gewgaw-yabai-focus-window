@@ -22,6 +22,29 @@ yabai -m query --windows --space |awk -F: '
     }
     BEGIN{
         window_count = 0;
+        keys["h"] = "yabai -m window --focus west";
+        keys["j"] = "yabai -m window --focus south";
+        keys["k"] = "yabai -m window --focus north";
+        keys["l"] = "yabai -m window --focus east";
+
+        keys["p"] = "yabai -m window --focus recent";
+        keys["r"] = "yabai -m window --focus last";
+
+        keys["c"] = "yabai -m display --focus 1";
+        keys["m"] = "yabai -m display --focus 1";
+        keys["b"] = "yabai -m display --focus 2";
+
+        keys[","] = "kitty @ --to unix:/Users/jfelice/.run/kitty send-text  --match=title:kak_repl_window \"\x10\x0d\"";
+        keys["="] = "yabai -m space --balance";
+        keys["/"] = "yabai -m window --toggle split";
+
+        keys["sh"] = "yabai -m window --swap west";
+        keys["sj"] = "yabai -m window --swap south";
+        keys["sk"] = "yabai -m window --swap north";
+        keys["sl"] = "yabai -m window --swap east";
+
+        keys["sp"] = "yabai -m window --swap recent";
+        keys["sr"] = "yabai -m window --swap last";
     }
     {
         gsub(/[," \t]/, "", $0);
@@ -38,7 +61,7 @@ yabai -m query --windows --space |awk -F: '
     $1 == "space" { windows[window_id,"space"] = $2; }
     END{
         sort_windows();
-        cmdline = "";
+        cmdline = "gewgaw ";
         for (i in window_ids) {
             window_id = window_ids[i];
             cmdline = cmdline sprintf(" %d,%s,%s,%s,%s,%s",
@@ -49,7 +72,20 @@ yabai -m query --windows --space |awk -F: '
                                       windows[window_id,"h"],
                                       i);
         }
-        print cmdline;
+        cmdline |getline choice;
+        close(cmdline);
+        gsub(/\n/, "", choice);
+        if (choice in keys)
+            system(keys[choice]);
+        else if ("s" == choice) {
+            cmdline |getline choice;
+            gsub(/\n/, "", choice);
+            if (("s" choice) in keys)
+                system(keys["s" choice]);
+            else if (1 == match(choice, /^[0-9]$/))
+                system("yabai -m window --swap " window_ids[choice]);
+        } else if (1 == match(choice, /^[0-9]$/))
+            system("yabai -m window --focus " window_ids[choice]);
     }
 
 '

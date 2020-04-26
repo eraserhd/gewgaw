@@ -243,9 +243,17 @@ void AppDelegate_applicationDidFinishLaunching(AppDelegate *self, SEL _cmd, id n
                                   screen);
         objc_msgSend(self->overlays, sel_getUid("addObject:"), overlay);
 
+        CGRect screen_rect;
+        objc_msgSend_stret(&screen_rect, screen, sel_getUid("frame"));
         for (int j = 0; j < pane_count; j++)
+        {
             if (panes[j].screen == 1+i)
-                objc_msgSend(overlay, sel_getUid("addPane:label:"), panes[j].area, panes[j].label);
+            {
+                CGRect inverted = panes[j].area;
+                inverted.origin.y = screen_rect.size.height - inverted.size.height - inverted.origin.y;
+                objc_msgSend(overlay, sel_getUid("addPane:label:"), inverted, panes[j].label);
+            }
+        }
 
         objc_msgSend(overlay, sel_getUid("makeKeyAndOrderFront:"), Nil);
     }

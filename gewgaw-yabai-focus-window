@@ -14,7 +14,7 @@ yabai -m query --windows --space |awk -F: '
                     swap_windows(i, j);
                 else if (delta == 0) {
                     delta = windows[window_ids[j],"y"] - windows[window_ids[i],"y"];
-                    if (delta > 0)
+                    if (delta < 0)
                         swap_windows(i, j);
                 }
             }

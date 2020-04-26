@@ -1,0 +1,37 @@
+#!/bin/sh
+
+yabai -m query --windows --space |awk -F: '
+    BEGIN{
+        window_count = 0;
+    }
+    {
+        gsub(/[," \t]/, "", $0);
+    }
+    $1 == "id" {
+        window_id = $2;
+        window_ids[window_count] = window_id;
+        window_count++;
+    }
+    $1 == "x"     { windows[window_id,"x"] = $2; }
+    $1 == "y"     { windows[window_id,"y"] = $2; }
+    $1 == "w"     { windows[window_id,"w"] = $2; }
+    $1 == "h"     { windows[window_id,"h"] = $2; }
+    $1 == "space" { windows[window_id,"space"] = $2; }
+    END{
+        cmdline = "";
+        window_number = 0
+        for (i in window_ids) {
+            window_id = window_ids[i];
+            cmdline = cmdline sprintf(" %d,%s,%s,%s,%s,%s",
+                                      windows[window_id,"space"],
+                                      windows[window_id,"x"],
+                                      windows[window_id,"y"],
+                                      windows[window_id,"w"],
+                                      windows[window_id,"h"],
+                                      window_number);
+            window_number++;
+        }
+        print cmdline;
+    }
+
+'

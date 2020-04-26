@@ -1,6 +1,25 @@
 #!/bin/sh
 
 yabai -m query --windows --space |awk -F: '
+    function swap_windows(i, j, tmp) {
+        tmp = window_ids[i];
+        window_ids[i] = window_ids[j];
+        window_ids[j] = tmp;
+    }
+    function sort_windows(i, j, delta) {
+        for (i = 0; i < window_count; i++) {
+            for (j = i+1; j < window_count; j++) {
+                delta = windows[window_ids[j],"x"] - windows[window_ids[i],"x"];
+                if (delta < 0)
+                    swap_windows(i, j);
+                else if (delta == 0) {
+                    delta = windows[window_ids[j],"y"] - windows[window_ids[i],"y"];
+                    if (delta > 0)
+                        swap_windows(i, j);
+                }
+            }
+        }
+    }
     BEGIN{
         window_count = 0;
     }
@@ -18,8 +37,8 @@ yabai -m query --windows --space |awk -F: '
     $1 == "h"     { windows[window_id,"h"] = $2; }
     $1 == "space" { windows[window_id,"space"] = $2; }
     END{
+        sort_windows();
         cmdline = "";
-        window_number = 0
         for (i in window_ids) {
             window_id = window_ids[i];
             cmdline = cmdline sprintf(" %d,%s,%s,%s,%s,%s",
@@ -28,8 +47,7 @@ yabai -m query --windows --space |awk -F: '
                                       windows[window_id,"y"],
                                       windows[window_id,"w"],
                                       windows[window_id,"h"],
-                                      window_number);
-            window_number++;
+                                      i);
         }
         print cmdline;
     }
